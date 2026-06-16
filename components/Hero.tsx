@@ -1,28 +1,15 @@
-'use client';
-
-import { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import styles from './Hero.module.css';
 
 export default function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.play().catch(() => {});
-  }, []);
-
   return (
     <section id="hero" className={styles.hero}>
-      <video
-        ref={videoRef}
-        className={styles.reel}
-        src="/video/reel.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
+      <Image
+        src="/images/hero-bg.jpg"
+        alt=""
+        fill
+        priority
+        className={styles.bg}
       />
       <div className={styles.overlay} />
       <div className={styles.content}>
