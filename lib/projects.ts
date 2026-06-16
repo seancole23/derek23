@@ -9,8 +9,10 @@ export type Project = {
   description: string;
 };
 
+const GH = 'https://github.com/seancole23/derek23/releases/download/videos-v1';
+
 const v = (slug: string, n: number) =>
-  Array.from({ length: n }, (_, i) => `/video/clients/${slug}/${String(i + 1).padStart(2, '0')}.mp4`);
+  Array.from({ length: n }, (_, i) => `${GH}/${slug}-${String(i + 1).padStart(2, '0')}.mp4`);
 
 export const PROJECTS: Project[] = [
   {

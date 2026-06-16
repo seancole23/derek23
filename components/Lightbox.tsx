@@ -17,13 +17,12 @@ type Props = {
 
 type VideoSize = { width: number; ratio: number };
 
-const INFO_H  = 72;
 const GUTTER  = 48;
 const TOP_GAP = 12;
 
-function computeSize(ratio: number): VideoSize {
-  const maxW = Math.min(window.innerWidth  - GUTTER, 1280);
-  const maxH = window.innerHeight - GUTTER - INFO_H - TOP_GAP;
+function computeSize(ratio: number, infoH: number): VideoSize {
+  const maxW = Math.min(window.innerWidth - GUTTER, 1280);
+  const maxH = window.innerHeight - GUTTER - infoH - TOP_GAP;
   let w = maxW;
   if (w / ratio > maxH) w = maxH * ratio;
   return { width: Math.round(w), ratio };
@@ -31,18 +30,25 @@ function computeSize(ratio: number): VideoSize {
 
 export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const infoRef  = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<VideoSize | null>(null);
 
   const project = projects[pos.clientIdx];
-  const videos = project.videos;
+  const videos  = project.videos;
+
+  const recomputeSize = useCallback(() => {
+    const v    = videoRef.current;
+    const info = infoRef.current;
+    if (!v || !v.videoWidth || !info) return;
+    setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
+  }, []);
 
   const prev = useCallback(() => {
     if (pos.videoIdx > 0) {
       onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx - 1 });
     } else {
       const prevClientIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
-      const prevVideos = projects[prevClientIdx].videos;
-      onNav({ clientIdx: prevClientIdx, videoIdx: prevVideos.length - 1 });
+      onNav({ clientIdx: prevClientIdx, videoIdx: projects[prevClientIdx].videos.length - 1 });
     }
   }, [pos, projects, onNav]);
 
@@ -61,32 +67,41 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
       if (e.key === 'ArrowRight') next();
     };
     document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', recomputeSize);
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', recomputeSize);
       document.body.style.overflow = '';
     };
-  }, [onClose, prev, next]);
+  }, [onClose, prev, next, recomputeSize]);
 
   useEffect(() => {
     setSize(null);
     const v = videoRef.current;
     if (!v) return;
+    v.volume = 0.7;
     v.load();
     v.play().catch(() => {});
   }, [pos]);
 
-  const handleMetadata = () => {
+  // Keep volume at 0.7 on the visible video after size is computed (new element in DOM)
+  useEffect(() => {
     const v = videoRef.current;
-    if (!v || !v.videoWidth) return;
-    setSize(computeSize(v.videoWidth / v.videoHeight));
+    if (v) v.volume = 0.7;
+  }, [size]);
+
+  const handleMetadata = () => {
+    const v    = videoRef.current;
+    const info = infoRef.current;
+    if (!v || !v.videoWidth || !info) return;
+    setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   };
 
   const panelStyle = size ? { width: size.width } : undefined;
-  const wrapStyle  = size ? { aspectRatio: String(size.ratio) } : { aspectRatio: '16/9' };
+  const wrapStyle  = size ? { aspectRatio: String(size.ratio) } : undefined;
 
-  // counter: "video X of Y · client N of M"
-  const videoLabel = `${pos.videoIdx + 1} / ${videos.length}`;
+  const videoLabel  = `${pos.videoIdx + 1} / ${videos.length}`;
   const clientLabel = `${pos.clientIdx + 1} / ${projects.length}`;
 
   return createPortal(
@@ -95,21 +110,35 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
 
         <button className={styles.close} onClick={onClose} aria-label="Close">✕</button>
 
-        <div className={styles.videoWrap} style={wrapStyle}>
+        {wrapStyle && (
+          <div className={styles.videoWrap} style={wrapStyle}>
+            <video
+              ref={videoRef}
+              className={styles.video}
+              src={videos[pos.videoIdx]}
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              onLoadedMetadata={handleMetadata}
+            />
+          </div>
+        )}
+
+        {/* Hidden video to fire onLoadedMetadata before size is known */}
+        {!wrapStyle && (
           <video
             ref={videoRef}
-            className={styles.video}
             src={videos[pos.videoIdx]}
-            autoPlay
+            style={{ display: 'none' }}
             muted
-            loop
             playsInline
-            controls
             onLoadedMetadata={handleMetadata}
           />
-        </div>
+        )}
 
-        <div className={styles.info}>
+        <div ref={infoRef} className={styles.info}>
           <div className={styles.infoLeft}>
             <div className={styles.logoWrap}>
               <Image
