@@ -13,9 +13,22 @@ type Props = {
   onNav: (index: number) => void;
 };
 
+type VideoSize = { width: number; ratio: number };
+
+const INFO_H = 90;   // approximate height of the info bar
+const GUTTER  = 48;  // total top + bottom gutter
+
+function computeSize(ratio: number): VideoSize {
+  const maxW = Math.min(window.innerWidth  - GUTTER, 1280);
+  const maxH = window.innerHeight - GUTTER - INFO_H;
+  let w = maxW;
+  if (w / ratio > maxH) w = maxH * ratio;
+  return { width: Math.round(w), ratio };
+}
+
 export default function Lightbox({ projects, activeIndex, onClose, onNav }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [ratio, setRatio] = useState<number | null>(null);
+  const [size, setSize] = useState<VideoSize | null>(null);
   const project = projects[activeIndex];
 
   const prev = useCallback(() => {
@@ -28,9 +41,9 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape')      onClose();
+      if (e.key === 'ArrowLeft')   prev();
+      if (e.key === 'ArrowRight')  next();
     };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -40,9 +53,8 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
     };
   }, [onClose, prev, next]);
 
-  // Reset ratio and reload video whenever the project changes
   useEffect(() => {
-    setRatio(null);
+    setSize(null);
     const v = videoRef.current;
     if (!v) return;
     v.load();
@@ -51,22 +63,20 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
 
   const handleMetadata = () => {
     const v = videoRef.current;
-    if (!v || !v.videoWidth || !v.videoHeight) return;
-    setRatio(v.videoWidth / v.videoHeight);
+    if (!v || !v.videoWidth) return;
+    setSize(computeSize(v.videoWidth / v.videoHeight));
   };
+
+  const panelStyle = size ? { width: size.width } : undefined;
+  const wrapStyle  = size ? { aspectRatio: String(size.ratio) } : { aspectRatio: '16/9' };
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.panel} onClick={e => e.stopPropagation()}>
+      <div className={styles.panel} style={panelStyle} onClick={e => e.stopPropagation()}>
 
-        <button className={styles.close} onClick={onClose} aria-label="Close">
-          ✕
-        </button>
+        <button className={styles.close} onClick={onClose} aria-label="Close">✕</button>
 
-        <div
-          className={styles.videoWrap}
-          style={ratio ? { aspectRatio: String(ratio) } : undefined}
-        >
+        <div className={styles.videoWrap} style={wrapStyle}>
           <video
             ref={videoRef}
             className={styles.video}
@@ -100,15 +110,9 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
             </div>
           </div>
           <div className={styles.nav}>
-            <button className={styles.navBtn} onClick={prev} aria-label="Previous project">
-              ← Prev
-            </button>
-            <span className={styles.navCount}>
-              {activeIndex + 1} / {projects.length}
-            </span>
-            <button className={styles.navBtn} onClick={next} aria-label="Next project">
-              Next →
-            </button>
+            <button className={styles.navBtn} onClick={prev} aria-label="Previous">← Prev</button>
+            <span className={styles.navCount}>{activeIndex + 1} / {projects.length}</span>
+            <button className={styles.navBtn} onClick={next} aria-label="Next">Next →</button>
           </div>
         </div>
 
