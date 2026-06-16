@@ -4,10 +4,13 @@ export type Project = {
   tags: string[];
   thumbnail: string;
   thumbnailBg: string;
-  video: string;
+  videos: string[];
   logo: string;
   description: string;
 };
+
+const v = (slug: string, n: number) =>
+  Array.from({ length: n }, (_, i) => `/video/clients/${slug}/${String(i + 1).padStart(2, '0')}.mp4`);
 
 export const PROJECTS: Project[] = [
   {
@@ -16,7 +19,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display', 'Motion'],
     thumbnail: '/images/thumbnails/Airwick.png',
     thumbnailBg: '#1e3d2f',
-    video: '/video/clients/airwick.mp4',
+    videos: v('airwick', 5),
     logo: '/images/logos/airwick.png',
     description: 'Seasonal social campaigns and digital display ads across multiple Air Wick product lines.',
   },
@@ -26,7 +29,7 @@ export const PROJECTS: Project[] = [
     tags: ['Display', 'Social', 'Motion'],
     thumbnail: '/images/thumbnails/MC_logo.svg',
     thumbnailBg: '#000000',
-    video: '/video/clients/mastercard.mp4',
+    videos: v('mastercard', 4),
     logo: '/images/logos/mastercard.svg',
     description: 'Multi-format digital advertising across sports, entertainment, and lifestyle verticals.',
   },
@@ -36,7 +39,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Motion'],
     thumbnail: '/images/thumbnails/Resolve_google.png',
     thumbnailBg: '#ffffff',
-    video: '/video/clients/resolve.mp4',
+    videos: v('resolve', 4),
     logo: '/images/logos/resolve.png',
     description: 'Animated slide series for DaVinci Resolve product education, produced for Google.',
   },
@@ -46,7 +49,7 @@ export const PROJECTS: Project[] = [
     tags: ['Display', 'OLA', 'Social'],
     thumbnail: '/images/thumbnails/VZ_logo_white.svg',
     thumbnailBg: '#000000',
-    video: '/video/clients/verizon.mp4',
+    videos: v('verizon', 4),
     logo: '/images/logos/verizon.svg',
     description: 'Bayou campaign — full suite of digital display, OLA, and social formats for Verizon home internet.',
   },
@@ -56,7 +59,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display'],
     thumbnail: '/images/thumbnails/COKE.png',
     thumbnailBg: '#e8001b',
-    video: '/video/clients/coke.mp4',
+    videos: v('coke', 4),
     logo: '/images/logos/coke.png',
     description: "Summer BBQ campaign — animated display ads and social content for Coke's seasonal push.",
   },
@@ -66,7 +69,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display', 'Motion'],
     thumbnail: '/images/thumbnails/Finish.png',
     thumbnailBg: '#0a0f1e',
-    video: '/video/clients/finish.mp4',
+    videos: v('finish', 4),
     logo: '/images/logos/finish.png',
     description: 'Animated social and display campaigns for Finish dishwasher detergent across seasonal themes.',
   },
@@ -76,7 +79,7 @@ export const PROJECTS: Project[] = [
     tags: ['Corporate', 'Motion'],
     thumbnail: '/images/thumbnails/VML.png',
     thumbnailBg: '#000000',
-    video: '/video/clients/vmlyr.mp4',
+    videos: v('vmlyr', 3),
     logo: '/images/logos/vmlyr.png',
     description: 'Agency production work for VMLY&R — animated brand and corporate content.',
   },
@@ -86,7 +89,7 @@ export const PROJECTS: Project[] = [
     tags: ['Corporate', 'Motion'],
     thumbnail: '/images/thumbnails/Wolters_Kluwer.png',
     thumbnailBg: '#000000',
-    video: '/video/clients/wolters.mp4',
+    videos: v('wolters', 4),
     logo: '/images/logos/wolters.png',
     description: "Corporate brand motion series for Wolters Kluwer's global marketing refresh.",
   },
@@ -96,7 +99,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Motion'],
     thumbnail: '/images/thumbnails/Mavenlink.png',
     thumbnailBg: '#000000',
-    video: '/video/clients/mavenlink.mp4',
+    videos: v('mavenlink', 3),
     logo: '/images/logos/mavenlink.png',
     description: "Animated product marketing and social content for Mavenlink's B2B platform.",
   },
@@ -106,7 +109,7 @@ export const PROJECTS: Project[] = [
     tags: ['Display', 'Social'],
     thumbnail: '/images/thumbnails/US_Bank.png',
     thumbnailBg: '#ffffff',
-    video: '/video/clients/usbank.mp4',
+    videos: v('usbank', 4),
     logo: '/images/logos/usbank.png',
     description: 'Digital display and social campaigns for US Bank across checking, savings, and lifestyle verticals.',
   },
@@ -116,7 +119,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Motion'],
     thumbnail: '/images/thumbnails/lysol.png',
     thumbnailBg: '#ffffff',
-    video: '/video/clients/lysol.mp4',
+    videos: v('lysol', 4),
     logo: '/images/logos/lysol.png',
     description: 'Social video and display creative for Lysol across multiple product campaigns.',
   },
@@ -126,7 +129,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display'],
     thumbnail: '/images/thumbnails/Woolite.png',
     thumbnailBg: '#5b72c4',
-    video: '/video/clients/woolite.mp4',
+    videos: v('woolite', 3),
     logo: '/images/logos/woolite.png',
     description: "Social and digital display campaign for Woolite's fabric care product line.",
   },
@@ -136,7 +139,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display'],
     thumbnail: '/images/thumbnails/Rid-X_Logo.png',
     thumbnailBg: '#a8c8e8',
-    video: '/video/clients/ridx.mp4',
+    videos: v('ridx', 4),
     logo: '/images/logos/ridx.png',
     description: 'Social infeed and story format campaigns for Rid-X septic treatment products.',
   },

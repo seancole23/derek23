@@ -43,7 +43,7 @@ export default function ProjectCard({ project, onClick }: { project: Project; on
         <video
           ref={videoRef}
           className={`${styles.video} ${playing ? styles.visible : ''}`}
-          src={project.video}
+          src={project.videos[0]}
           muted
           loop
           playsInline

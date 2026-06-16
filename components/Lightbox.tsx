@@ -6,18 +6,20 @@ import Image from 'next/image';
 import type { Project } from '@/lib/projects';
 import styles from './Lightbox.module.css';
 
+type LightboxPos = { clientIdx: number; videoIdx: number };
+
 type Props = {
   projects: Project[];
-  activeIndex: number;
+  pos: LightboxPos;
   onClose: () => void;
-  onNav: (index: number) => void;
+  onNav: (pos: LightboxPos) => void;
 };
 
 type VideoSize = { width: number; ratio: number };
 
-const INFO_H    = 72;  // logo(30) + name(20) + tags(18) + padding(24) — no desc
-const GUTTER    = 48;  // total top + bottom gutter
-const TOP_GAP   = 12;  // margin-top on videoWrap (must match Lightbox.module.css)
+const INFO_H  = 72;
+const GUTTER  = 48;
+const TOP_GAP = 12;
 
 function computeSize(ratio: number): VideoSize {
   const maxW = Math.min(window.innerWidth  - GUTTER, 1280);
@@ -27,24 +29,36 @@ function computeSize(ratio: number): VideoSize {
   return { width: Math.round(w), ratio };
 }
 
-export default function Lightbox({ projects, activeIndex, onClose, onNav }: Props) {
+export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [size, setSize] = useState<VideoSize | null>(null);
-  const project = projects[activeIndex];
+
+  const project = projects[pos.clientIdx];
+  const videos = project.videos;
 
   const prev = useCallback(() => {
-    onNav((activeIndex - 1 + projects.length) % projects.length);
-  }, [activeIndex, projects.length, onNav]);
+    if (pos.videoIdx > 0) {
+      onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx - 1 });
+    } else {
+      const prevClientIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
+      const prevVideos = projects[prevClientIdx].videos;
+      onNav({ clientIdx: prevClientIdx, videoIdx: prevVideos.length - 1 });
+    }
+  }, [pos, projects, onNav]);
 
   const next = useCallback(() => {
-    onNav((activeIndex + 1) % projects.length);
-  }, [activeIndex, projects.length, onNav]);
+    if (pos.videoIdx < videos.length - 1) {
+      onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx + 1 });
+    } else {
+      onNav({ clientIdx: (pos.clientIdx + 1) % projects.length, videoIdx: 0 });
+    }
+  }, [pos, videos.length, projects, onNav]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape')      onClose();
-      if (e.key === 'ArrowLeft')   prev();
-      if (e.key === 'ArrowRight')  next();
+      if (e.key === 'Escape')     onClose();
+      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowRight') next();
     };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -60,7 +74,7 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
     if (!v) return;
     v.load();
     v.play().catch(() => {});
-  }, [activeIndex]);
+  }, [pos]);
 
   const handleMetadata = () => {
     const v = videoRef.current;
@@ -70,6 +84,10 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
 
   const panelStyle = size ? { width: size.width } : undefined;
   const wrapStyle  = size ? { aspectRatio: String(size.ratio) } : { aspectRatio: '16/9' };
+
+  // counter: "video X of Y · client N of M"
+  const videoLabel = `${pos.videoIdx + 1} / ${videos.length}`;
+  const clientLabel = `${pos.clientIdx + 1} / ${projects.length}`;
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
@@ -81,7 +99,7 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
           <video
             ref={videoRef}
             className={styles.video}
-            src={project.video}
+            src={videos[pos.videoIdx]}
             autoPlay
             muted
             loop
@@ -112,7 +130,10 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
           </div>
           <div className={styles.nav}>
             <button className={styles.navBtn} onClick={prev} aria-label="Previous">← Prev</button>
-            <span className={styles.navCount}>{activeIndex + 1} / {projects.length}</span>
+            <div className={styles.navCount}>
+              <span>{videoLabel}</span>
+              <span className={styles.navCountSub}>{clientLabel} clients</span>
+            </div>
             <button className={styles.navBtn} onClick={next} aria-label="Next">Next →</button>
           </div>
         </div>

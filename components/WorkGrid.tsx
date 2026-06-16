@@ -6,8 +6,10 @@ import ProjectCard from './ProjectCard';
 import Lightbox from './Lightbox';
 import styles from './WorkGrid.module.css';
 
+type LightboxPos = { clientIdx: number; videoIdx: number };
+
 export default function WorkGrid() {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [lightbox, setLightbox] = useState<LightboxPos | null>(null);
 
   return (
     <section id="work" className={styles.section}>
@@ -20,17 +22,17 @@ export default function WorkGrid() {
           <ProjectCard
             key={project.slug}
             project={project}
-            onClick={() => setActiveIndex(i)}
+            onClick={() => setLightbox({ clientIdx: i, videoIdx: 0 })}
           />
         ))}
       </div>
 
-      {activeIndex !== null && (
+      {lightbox !== null && (
         <Lightbox
           projects={PROJECTS}
-          activeIndex={activeIndex}
-          onClose={() => setActiveIndex(null)}
-          onNav={setActiveIndex}
+          pos={lightbox}
+          onClose={() => setLightbox(null)}
+          onNav={setLightbox}
         />
       )}
     </section>
