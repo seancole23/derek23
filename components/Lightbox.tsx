@@ -41,7 +41,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   }, []);
 
-  // Arrows navigate clients; pills navigate videos within client
+  // ‹ › buttons navigate clients
   const prevClient = useCallback(() => {
     const prevIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
     onNav({ clientIdx: prevIdx, videoIdx: 0 });
@@ -51,7 +51,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     onNav({ clientIdx: (pos.clientIdx + 1) % projects.length, videoIdx: 0 });
   }, [pos.clientIdx, projects, onNav]);
 
-  // Keyboard ← → still navigates videos (wraps to prev/next client at boundaries)
+  // Keyboard ← → navigate videos, wrapping to prev/next client at boundaries
   const prevVideo = useCallback(() => {
     if (pos.videoIdx > 0) {
       onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx - 1 });
@@ -86,19 +86,13 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
   }, [onClose, prevVideo, nextVideo, recomputeSize]);
 
   useEffect(() => {
-    setSize(null);
     const v = videoRef.current;
     if (!v) return;
     v.volume = 0.7;
     v.load();
     v.play().catch(() => {});
+    // Keep previous size during navigation — panel holds shape until new metadata fires
   }, [pos]);
-
-  // Re-apply volume after size change (new video element mounted)
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v) v.volume = 0.7;
-  }, [size]);
 
   const handleMetadata = () => {
     const v    = videoRef.current;
@@ -106,7 +100,6 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     if (!v || !v.videoWidth || !info) return;
     setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   };
-
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
@@ -117,10 +110,9 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
       >
         <button className={styles.close} onClick={onClose} aria-label="Close">✕</button>
 
-        {/* Video hidden until ratio is known to avoid 16:9 → portrait snap */}
         <div
           className={styles.videoWrap}
-          style={size ? { aspectRatio: String(size.ratio) } : { display: 'none' }}
+          style={{ aspectRatio: size ? String(size.ratio) : '16/9' }}
         >
           <video
             ref={videoRef}
@@ -134,17 +126,6 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
             onLoadedMetadata={handleMetadata}
           />
         </div>
-
-        {/* Hidden loader fires onLoadedMetadata before size is known */}
-        {!size && (
-          <video
-            src={videos[pos.videoIdx]}
-            style={{ display: 'none' }}
-            muted
-            playsInline
-            onLoadedMetadata={handleMetadata}
-          />
-        )}
 
         <div ref={infoRef} className={styles.info}>
           <div className={styles.infoLeft}>
