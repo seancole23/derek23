@@ -27,7 +27,7 @@
   flex-direction: column;
   animation: scaleIn 0.22s ease;
   transition: width 0.18s ease;
-  padding-top: 10px;
+  padding-top: 12px;
 }
 
 @keyframes scaleIn {
