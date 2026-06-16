@@ -15,12 +15,13 @@ type Props = {
 
 type VideoSize = { width: number; ratio: number };
 
-const INFO_H = 90;   // approximate height of the info bar
-const GUTTER  = 48;  // total top + bottom gutter
+const INFO_H    = 90;  // approximate height of the info bar
+const GUTTER    = 48;  // total top + bottom gutter
+const TOP_GAP   = 12;  // margin-top on videoWrap (must match Lightbox.module.css)
 
 function computeSize(ratio: number): VideoSize {
   const maxW = Math.min(window.innerWidth  - GUTTER, 1280);
-  const maxH = window.innerHeight - GUTTER - INFO_H;
+  const maxH = window.innerHeight - GUTTER - INFO_H - TOP_GAP;
   let w = maxW;
   if (w / ratio > maxH) w = maxH * ratio;
   return { width: Math.round(w), ratio };

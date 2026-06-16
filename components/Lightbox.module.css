@@ -27,7 +27,6 @@
   flex-direction: column;
   animation: scaleIn 0.22s ease;
   transition: width 0.18s ease;
-  padding-top: 12px;
 }
 
 @keyframes scaleIn {
@@ -64,6 +63,7 @@
   width: 100%;
   background: #000;
   flex-shrink: 0;
+  margin-top: 12px;
   /* aspect-ratio set inline from detected video dimensions */
 }
 
