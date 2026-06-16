@@ -85,13 +85,10 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     };
   }, [onClose, prevVideo, nextVideo, recomputeSize]);
 
+  // Set volume after each mount (key remount gives a fresh element)
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
-    v.volume = 0.7;
-    v.load();
-    v.play().catch(() => {});
-    // Keep previous size during navigation — panel holds shape until new metadata fires
+    if (v) v.volume = 0.7;
   }, [pos]);
 
   const handleMetadata = () => {
@@ -115,6 +112,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
           style={{ aspectRatio: size ? String(size.ratio) : '16/9' }}
         >
           <video
+            key={videos[pos.videoIdx]}
             ref={videoRef}
             className={styles.video}
             src={videos[pos.videoIdx]}
