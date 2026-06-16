@@ -1,26 +1,25 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import type { Project } from '@/lib/projects';
 import styles from './ProjectCard.module.css';
 
 export default function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
 
   const handleMouseEnter = () => {
     const v = videoRef.current;
     if (!v) return;
     v.currentTime = 0;
-    v.play().then(() => setPlaying(true)).catch(() => {});
+    v.play().catch(() => {});
   };
 
   const handleMouseLeave = () => {
     const v = videoRef.current;
     if (!v) return;
     v.pause();
-    setPlaying(false);
+    v.load(); // resets to poster
   };
 
   return (
@@ -31,18 +30,11 @@ export default function ProjectCard({ project, onClick }: { project: Project; on
       onClick={onClick}
     >
       <div className={styles.media}>
-        <Image
-          src={project.cover}
-          alt={project.client}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className={`${styles.poster} ${playing ? styles.hidden : ''}`}
-          priority={false}
-        />
         <video
           ref={videoRef}
-          className={`${styles.video} ${playing ? styles.visible : ''}`}
+          className={styles.video}
           src={project.video}
+          poster={project.cover}
           muted
           loop
           playsInline
@@ -55,7 +47,6 @@ export default function ProjectCard({ project, onClick }: { project: Project; on
             alt={`${project.client} logo`}
             width={100}
             height={40}
-            className={styles.logo}
             style={{ objectFit: 'contain', objectPosition: 'left center' }}
           />
         </div>

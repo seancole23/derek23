@@ -21,27 +21,12 @@
   overflow: hidden;
 }
 
-.poster {
-  object-fit: cover;
-  transition: opacity 0.4s;
-}
-
-.poster.hidden {
-  opacity: 0;
-}
-
 .video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.video.visible {
-  opacity: 1;
 }
 
 .overlay {
