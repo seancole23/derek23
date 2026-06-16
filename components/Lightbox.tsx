@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import type { Project } from '@/lib/projects';
@@ -15,6 +15,7 @@ type Props = {
 
 export default function Lightbox({ projects, activeIndex, onClose, onNav }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [ratio, setRatio] = useState<number | null>(null);
   const project = projects[activeIndex];
 
   const prev = useCallback(() => {
@@ -39,12 +40,20 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
     };
   }, [onClose, prev, next]);
 
+  // Reset ratio and reload video whenever the project changes
   useEffect(() => {
+    setRatio(null);
     const v = videoRef.current;
     if (!v) return;
     v.load();
     v.play().catch(() => {});
   }, [activeIndex]);
+
+  const handleMetadata = () => {
+    const v = videoRef.current;
+    if (!v || !v.videoWidth || !v.videoHeight) return;
+    setRatio(v.videoWidth / v.videoHeight);
+  };
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
@@ -54,7 +63,10 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
           ✕
         </button>
 
-        <div className={styles.videoWrap}>
+        <div
+          className={styles.videoWrap}
+          style={ratio ? { aspectRatio: String(ratio) } : undefined}
+        >
           <video
             ref={videoRef}
             className={styles.video}
@@ -64,6 +76,7 @@ export default function Lightbox({ projects, activeIndex, onClose, onNav }: Prop
             loop
             playsInline
             controls
+            onLoadedMetadata={handleMetadata}
           />
         </div>
 

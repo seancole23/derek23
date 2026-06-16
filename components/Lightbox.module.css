@@ -17,8 +17,8 @@
 
 .panel {
   position: relative;
-  width: 100%;
-  max-width: 1100px;
+  /* width is driven by the video's natural ratio against available height */
+  max-width: min(1100px, 90vw);
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -26,6 +26,7 @@
   display: flex;
   flex-direction: column;
   animation: scaleIn 0.22s ease;
+  /* info bar is ~82px; leave 48px gutter top+bottom */
   max-height: calc(100vh - 48px);
 }
 
@@ -59,10 +60,15 @@
 }
 
 .videoWrap {
+  /*
+    aspect-ratio is set inline from detected videoWidth/videoHeight.
+    For portrait videos the panel narrows; for landscape it widens.
+    max-height keeps tall portrait videos from overflowing the viewport.
+  */
   width: 100%;
-  aspect-ratio: 16 / 9;
   background: #000;
   flex-shrink: 0;
+  max-height: calc(100vh - 130px); /* 130px ≈ info bar + gutter */
 }
 
 .video {
