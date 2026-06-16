@@ -19,7 +19,7 @@
    Before metadata fires we fall back to 16/9 on the videoWrap. */
 .panel {
   position: relative;
-  background: var(--bg2);
+  background: #1e1e1e;
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
