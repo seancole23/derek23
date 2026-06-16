@@ -41,7 +41,18 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   }, []);
 
-  const prev = useCallback(() => {
+  // Arrows navigate clients; pills navigate videos within client
+  const prevClient = useCallback(() => {
+    const prevIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
+    onNav({ clientIdx: prevIdx, videoIdx: 0 });
+  }, [pos.clientIdx, projects, onNav]);
+
+  const nextClient = useCallback(() => {
+    onNav({ clientIdx: (pos.clientIdx + 1) % projects.length, videoIdx: 0 });
+  }, [pos.clientIdx, projects, onNav]);
+
+  // Keyboard ← → still navigates videos (wraps to prev/next client at boundaries)
+  const prevVideo = useCallback(() => {
     if (pos.videoIdx > 0) {
       onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx - 1 });
     } else {
@@ -50,7 +61,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     }
   }, [pos, projects, onNav]);
 
-  const next = useCallback(() => {
+  const nextVideo = useCallback(() => {
     if (pos.videoIdx < videos.length - 1) {
       onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx + 1 });
     } else {
@@ -61,8 +72,8 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape')     onClose();
-      if (e.key === 'ArrowLeft')  prev();
-      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft')  prevVideo();
+      if (e.key === 'ArrowRight') nextVideo();
     };
     document.addEventListener('keydown', onKey);
     window.addEventListener('resize', recomputeSize);
@@ -72,7 +83,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
       window.removeEventListener('resize', recomputeSize);
       document.body.style.overflow = '';
     };
-  }, [onClose, prev, next, recomputeSize]);
+  }, [onClose, prevVideo, nextVideo, recomputeSize]);
 
   useEffect(() => {
     setSize(null);
@@ -96,8 +107,6 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   };
 
-  const videoLabel  = `${pos.videoIdx + 1} / ${videos.length}`;
-  const clientLabel = `${pos.clientIdx + 1} / ${projects.length}`;
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
@@ -156,12 +165,20 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
             </div>
           </div>
           <div className={styles.nav}>
-            <button className={styles.navBtn} onClick={prev} aria-label="Previous">← Prev</button>
-            <div className={styles.navCount}>
-              <span>{videoLabel}</span>
-              <span className={styles.navCountSub}>{clientLabel} clients</span>
+            <button className={styles.clientBtn} onClick={prevClient} aria-label="Previous client">‹</button>
+            <div className={styles.pills}>
+              {videos.map((_, i) => (
+                <button
+                  key={i}
+                  className={`${styles.pill} ${i === pos.videoIdx ? styles.pillActive : ''}`}
+                  onClick={() => onNav({ clientIdx: pos.clientIdx, videoIdx: i })}
+                  aria-label={`Video ${i + 1}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
             </div>
-            <button className={styles.navBtn} onClick={next} aria-label="Next">Next →</button>
+            <button className={styles.clientBtn} onClick={nextClient} aria-label="Next client">›</button>
           </div>
         </div>
       </div>
