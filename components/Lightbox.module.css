@@ -78,8 +78,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  gap: 20px;
+  padding: 12px 16px;
+  gap: 16px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -107,10 +107,7 @@
 }
 
 .desc {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.5;
-  max-width: 500px;
+  display: none;
 }
 
 .tags {

@@ -15,7 +15,7 @@ type Props = {
 
 type VideoSize = { width: number; ratio: number };
 
-const INFO_H    = 90;  // approximate height of the info bar
+const INFO_H    = 72;  // logo(30) + name(20) + tags(18) + padding(24) — no desc
 const GUTTER    = 48;  // total top + bottom gutter
 const TOP_GAP   = 12;  // margin-top on videoWrap (must match Lightbox.module.css)
 
