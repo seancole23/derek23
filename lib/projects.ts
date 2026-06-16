@@ -1,3 +1,5 @@
+export type LightboxPos = { clientIdx: number; videoIdx: number };
+
 export type Project = {
   slug: string;
   client: string;
@@ -21,7 +23,7 @@ export const PROJECTS: Project[] = [
     tags: ['Social', 'Display', 'Motion'],
     thumbnail: '/images/thumbnails/Airwick.png',
     thumbnailBg: '#1e3d2f',
-    videos: v('airwick', 5),
+    videos: v('airwick', 9),
     logo: '/images/logos/airwick.png',
     description: 'Seasonal social campaigns and digital display ads across multiple Air Wick product lines.',
   },

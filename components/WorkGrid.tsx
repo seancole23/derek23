@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { PROJECTS } from '@/lib/projects';
+import type { LightboxPos } from '@/lib/projects';
 import ProjectCard from './ProjectCard';
 import Lightbox from './Lightbox';
 import styles from './WorkGrid.module.css';
-
-type LightboxPos = { clientIdx: number; videoIdx: number };
 
 export default function WorkGrid() {
   const [lightbox, setLightbox] = useState<LightboxPos | null>(null);

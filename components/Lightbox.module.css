@@ -107,9 +107,6 @@
   text-overflow: ellipsis;
 }
 
-.desc {
-  display: none;
-}
 
 .tags {
   display: flex;
@@ -197,7 +194,4 @@
     justify-content: space-between;
   }
 
-  .desc {
-    display: none;
-  }
 }

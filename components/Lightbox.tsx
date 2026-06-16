@@ -3,10 +3,8 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import type { Project } from '@/lib/projects';
+import type { Project, LightboxPos } from '@/lib/projects';
 import styles from './Lightbox.module.css';
-
-type LightboxPos = { clientIdx: number; videoIdx: number };
 
 type Props = {
   projects: Project[];
@@ -47,8 +45,8 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     if (pos.videoIdx > 0) {
       onNav({ clientIdx: pos.clientIdx, videoIdx: pos.videoIdx - 1 });
     } else {
-      const prevClientIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
-      onNav({ clientIdx: prevClientIdx, videoIdx: projects[prevClientIdx].videos.length - 1 });
+      const prevIdx = (pos.clientIdx - 1 + projects.length) % projects.length;
+      onNav({ clientIdx: prevIdx, videoIdx: projects[prevIdx].videos.length - 1 });
     }
   }, [pos, projects, onNav]);
 
@@ -85,7 +83,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     v.play().catch(() => {});
   }, [pos]);
 
-  // Keep volume at 0.7 on the visible video after size is computed (new element in DOM)
+  // Re-apply volume after size change (new video element mounted)
   useEffect(() => {
     const v = videoRef.current;
     if (v) v.volume = 0.7;
@@ -98,38 +96,39 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
     setSize(computeSize(v.videoWidth / v.videoHeight, info.offsetHeight));
   };
 
-  const panelStyle = size ? { width: size.width } : undefined;
-  const wrapStyle  = size ? { aspectRatio: String(size.ratio) } : undefined;
-
   const videoLabel  = `${pos.videoIdx + 1} / ${videos.length}`;
   const clientLabel = `${pos.clientIdx + 1} / ${projects.length}`;
 
   return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.panel} style={panelStyle} onClick={e => e.stopPropagation()}>
-
+      <div
+        className={styles.panel}
+        style={size ? { width: size.width } : undefined}
+        onClick={e => e.stopPropagation()}
+      >
         <button className={styles.close} onClick={onClose} aria-label="Close">✕</button>
 
-        {wrapStyle && (
-          <div className={styles.videoWrap} style={wrapStyle}>
-            <video
-              ref={videoRef}
-              className={styles.video}
-              src={videos[pos.videoIdx]}
-              autoPlay
-              muted
-              loop
-              playsInline
-              controls
-              onLoadedMetadata={handleMetadata}
-            />
-          </div>
-        )}
-
-        {/* Hidden video to fire onLoadedMetadata before size is known */}
-        {!wrapStyle && (
+        {/* Video hidden until ratio is known to avoid 16:9 → portrait snap */}
+        <div
+          className={styles.videoWrap}
+          style={size ? { aspectRatio: String(size.ratio) } : { display: 'none' }}
+        >
           <video
             ref={videoRef}
+            className={styles.video}
+            src={videos[pos.videoIdx]}
+            autoPlay
+            muted
+            loop
+            playsInline
+            controls
+            onLoadedMetadata={handleMetadata}
+          />
+        </div>
+
+        {/* Hidden loader fires onLoadedMetadata before size is known */}
+        {!size && (
+          <video
             src={videos[pos.videoIdx]}
             style={{ display: 'none' }}
             muted
@@ -150,7 +149,6 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
               />
             </div>
             <h2 className={styles.client}>{project.client}</h2>
-            <p className={styles.desc}>{project.description}</p>
             <div className={styles.tags}>
               {project.tags.map(tag => (
                 <span key={tag} className={styles.tag}>{tag}</span>
@@ -166,7 +164,6 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
             <button className={styles.navBtn} onClick={next} aria-label="Next">Next →</button>
           </div>
         </div>
-
       </div>
     </div>,
     document.body
