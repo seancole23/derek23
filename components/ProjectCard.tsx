@@ -1,25 +1,26 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import type { Project } from '@/lib/projects';
 import styles from './ProjectCard.module.css';
 
 export default function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
 
   const handleMouseEnter = () => {
     const v = videoRef.current;
     if (!v) return;
     v.currentTime = 0;
-    v.play().catch(() => {});
+    v.play().then(() => setPlaying(true)).catch(() => {});
   };
 
   const handleMouseLeave = () => {
     const v = videoRef.current;
     if (!v) return;
     v.pause();
-    v.load(); // resets to poster
+    setPlaying(false);
   };
 
   return (
@@ -29,27 +30,26 @@ export default function ProjectCard({ project, onClick }: { project: Project; on
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
     >
-      <div className={styles.media}>
+      <div className={styles.media} style={{ background: project.thumbnailBg }}>
+        <div className={`${styles.thumbnail} ${playing ? styles.hidden : ''}`}>
+          <Image
+            src={project.thumbnail}
+            alt={project.client}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            style={{ objectFit: 'contain', padding: '18%' }}
+          />
+        </div>
         <video
           ref={videoRef}
-          className={styles.video}
+          className={`${styles.video} ${playing ? styles.visible : ''}`}
           src={project.video}
-          poster={project.cover}
           muted
           loop
           playsInline
           preload="none"
         />
         <div className={styles.overlay} />
-        <div className={styles.logoWrap}>
-          <Image
-            src={project.logo}
-            alt={`${project.client} logo`}
-            width={100}
-            height={40}
-            style={{ objectFit: 'contain', objectPosition: 'left center' }}
-          />
-        </div>
         <div className={styles.tags}>
           {project.tags.map(tag => (
             <span key={tag} className={styles.tag}>{tag}</span>
