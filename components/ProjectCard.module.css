@@ -1,7 +1,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  cursor: default;
+  cursor: pointer;
   background: var(--bg2);
   border-radius: 4px;
   overflow: hidden;

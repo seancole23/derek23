@@ -5,7 +5,7 @@ import Image from 'next/image';
 import type { Project } from '@/lib/projects';
 import styles from './ProjectCard.module.css';
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
 
@@ -28,6 +28,7 @@ export default function ProjectCard({ project }: { project: Project }) {
       className={styles.card}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
     >
       <div className={styles.media}>
         <Image
