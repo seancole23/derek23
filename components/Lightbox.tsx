@@ -121,6 +121,7 @@ export default function Lightbox({ projects, pos, onClose, onNav }: Props) {
             loop
             playsInline
             controls
+            onCanPlay={e => e.currentTarget.play().catch(() => {})}
             onLoadedMetadata={handleMetadata}
           />
         </div>
