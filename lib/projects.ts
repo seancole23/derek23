@@ -11,7 +11,7 @@ export type Project = {
   description: string;
 };
 
-const GH = 'https://github.com/seancole23/derek23/releases/download/videos-v1';
+const GH = 'https://pub-8fd5e90fc3ff4bad8280d9a046054a45.r2.dev';
 
 const v = (slug: string, n: number) =>
   Array.from({ length: n }, (_, i) => `${GH}/${slug}-${String(i + 1).padStart(2, '0')}.mp4`);
