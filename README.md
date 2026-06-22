@@ -32,37 +32,49 @@ public/
 
 ## Video Hosting
 
-Videos are **not in the repo** — hosted in a GitHub Release and served via GitHub's CDN.
+Videos are **not in the repo** — hosted on **Cloudflare R2** and streamed via its public dev URL.
 
-- Release tag: `videos-v1`
-- URL pattern: `https://github.com/seancole23/derek23/releases/download/videos-v1/{client}-{NN}.mp4`
+- Bucket: `derek23-videos` (Cloudflare account: donnymat46@gmail.com)
+- Public base URL: `https://pub-8fd5e90fc3ff4bad8280d9a046054a45.r2.dev`
+- Filename pattern: `{client}-{NN}.mp4` (e.g. `airwick-01.mp4`, `airwick-09.mp4`)
 - Source files: `/Desktop/Derek23/WIX/comps/{Client}/`
+
+> **Why R2, not GitHub Releases?** GitHub serves release assets with `Content-Disposition: attachment` — browsers can't stream video from those URLs. R2 streams correctly.
 
 To add or replace a video:
 
 ```bash
-gh release upload videos-v1 "path/to/file.mp4#client-NN.mp4" \
-  --repo seancole23/derek23 --clobber
-# then update: videos: v('client', N) in lib/projects.ts
+# 1. Copy to /tmp with the correct slug name
+cp "path/to/source.mp4" /tmp/derek23-videos/client-NN.mp4
+
+# 2. Upload to R2
+wrangler r2 object put "derek23-videos/client-NN.mp4" \
+  --file "/tmp/derek23-videos/client-NN.mp4" \
+  --content-type "video/mp4"
+
+# 3. Update count in lib/projects.ts
+# videos: v('client', N)
 ```
 
 ## Client Video Status
 
-| Client     | Slug       | Videos | Status     |
-|------------|------------|--------|------------|
-| Air Wick   | airwick    | 9      | ✅ Done    |
-| Mastercard | mastercard | 4      | ⚠️ Review  |
-| Resolve    | resolve    | 4      | ⚠️ Review  |
-| Verizon    | verizon    | 4      | ⚠️ Review  |
-| Coca-Cola  | coke       | 4      | ⚠️ Review  |
-| Finish     | finish     | 4      | ⚠️ Review  |
-| VMLY&R     | vmlyr      | 3      | ⚠️ Review  |
-| Wolters    | wolters    | 4      | ⚠️ Review  |
-| Mavenlink  | mavenlink  | 3      | ⚠️ Review  |
-| US Bank    | usbank     | 4      | ⚠️ Review  |
-| Lysol      | lysol      | 4      | ⚠️ Review  |
-| Woolite    | woolite    | 3      | ⚠️ Review  |
-| Rid-X      | ridx       | 4      | ⚠️ Review  |
+All 54 videos are live on R2. Air Wick is fully reviewed and ordered. The other 12 clients have placeholder videos uploaded (first N files from source) and still need a review pass to confirm order and count.
+
+| Client     | Slug       | Videos | Source files | Status             |
+|------------|------------|--------|--------------|--------------------|
+| Air Wick   | airwick    | 9      | 9            | ✅ Done            |
+| Mastercard | mastercard | 4      | 20           | ⚠️ Needs review   |
+| Resolve    | resolve    | 4      | 15           | ⚠️ Needs review   |
+| Verizon    | verizon    | 4      | 25           | ⚠️ Needs review   |
+| Coca-Cola  | coke       | 4      | 5            | ⚠️ Needs review   |
+| Finish     | finish     | 4      | 18           | ⚠️ Needs review   |
+| VMLY&R     | vmlyr      | 3      | 7            | ⚠️ Needs review   |
+| Wolters    | wolters    | 4      | 8            | ⚠️ Needs review   |
+| Mavenlink  | mavenlink  | 3      | 9            | ⚠️ Needs review   |
+| US Bank    | usbank     | 4      | 7            | ⚠️ Needs review   |
+| Lysol      | lysol      | 4      | 13           | ⚠️ Needs review   |
+| Woolite    | woolite    | 3      | 10           | ⚠️ Needs review   |
+| Rid-X      | ridx       | 4      | 7            | ⚠️ Needs review   |
 
 ## Lightbox
 

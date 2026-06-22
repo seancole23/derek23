@@ -50,16 +50,17 @@
   color: var(--text);
 }
 
-.contactLink {
-  color: var(--text) !important;
+.links .contactLink {
+  color: var(--text);
   border: 1px solid var(--border);
   padding: 8px 18px;
   border-radius: 3px;
-  transition: border-color 0.2s, background 0.2s !important;
+  transition: border-color 0.2s, background 0.2s;
 }
 
-.contactLink:hover {
-  border-color: rgba(255, 255, 255, 0.3) !important;
+.links .contactLink:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.05);
 }
 
